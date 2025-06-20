@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1147,7 +1146,7 @@ GameObject:
   - component: {fileID: 1906687180}
   - component: {fileID: 1906687181}
   - component: {fileID: 1906687182}
-  - component: {fileID: 1906687179}
+  - component: {fileID: 1906687184}
   m_Layer: 0
   m_Name: NewPlayer
   m_TagString: Untagged
@@ -1223,33 +1222,6 @@ Transform:
   - {fileID: 580151755}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1906687179
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1906687176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d1c6de548fb5294e83c81ac336ba8d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rigid: {fileID: 1906687180}
-  animator: {fileID: 0}
-  spriteRenderer: {fileID: 0}
-  AtkManager: {fileID: 0}
-  moveSpeed: 5
-  maxSpeed: 20
-  acceleration: 13
-  deceleration: 3
-  jumpPower: 30
-  health: 100
-  frameVelocity: {x: 0, y: 0}
-  fallAcceleraction: 12
-  maxFallSpeed: 15
-  boxSize: {x: 1.21, y: 0.33}
-  castDistance: 1.75
 --- !u!50 &1906687180
 Rigidbody2D:
   serializedVersion: 4
@@ -1355,6 +1327,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 099b0a606d9b39b4ea702c0381f82ef6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentAttack: {fileID: 0}
+  nexttAttack: {fileID: 0}
+  playerController: {fileID: 0}
+--- !u!114 &1906687184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1906687176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09957568f5c619b428c037d0a00ee222, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rigid: {fileID: 0}
+  spriteRenderer: {fileID: 0}
+  animator: {fileID: 0}
+  attackPoint: {fileID: 0}
+  state: {fileID: 438803619}
+  changed: 0
+  maxSpeed: 20
+  jumpPower: 10
+  frameVelocity: {x: 0, y: 0}
+  fallAcceleraction: 4
+  maxFallSpeed: 10
+  boxSize: {x: 0, y: 0}
+  castDistance: 0
 --- !u!1 &1918814622
 GameObject:
   m_ObjectHideFlags: 0
