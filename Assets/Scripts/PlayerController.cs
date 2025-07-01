@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     public BoxCollider2D attackPoint;
 
     public TextMeshProUGUI state;
+
     public int changed=0;
 
     public StateMachine stateMachine;
@@ -22,64 +23,116 @@ public class PlayerController : MonoBehaviour
         
 
     //PlayerStatus
-    public float maxSpeed;
-    public float jumpPower;
-
     //Player Physic
     [SerializeField]
-    public Vector2 frameVelocity;
+    private Vector2 frameVelocity;
     public float fallAcceleraction;
     public float maxFallSpeed;
     
     //x axis move
-    public float acceleration{ get; private set; }
-    public float deceleration{ get; private set; }
+    public float maxSpeed;
+    public float acceleration;
+    public float deceleration;
+
+    //y axis move
+    public float jumpPower;
+    public int  MaxJumpCount;
+    public int jumpCount;
 
     //PlayerCheck
     public Vector2 inputDirection{ get; private set; }
     public bool isGround{ get; private set; }
 
 
-
-    //CheckVariable
+    //GroundCheckVariable
     public Vector2 boxSize;
     public float castDistance;
 
+    //Attack variable
+    public List<string> attackList;
+    public int attackCount;
+    private bool isAttacking = false;
 
+    
+    public bool IsAttacking()
+    {
+        return isAttacking;
+    }
+
+    public void SetIsAttacking(bool value)
+    {
+        isAttacking = value;
+    }
+
+    public void ResetAttackCombo()
+    {
+        attackCount = 0;
+    }
+
+    
+ 
+    /// 특정 애니메이션 상태의 재생이 완료되었는지 확인합니다.
+    public bool ShouldContinueAttack(bool doNextAttack)
+    {
+        if (doNextAttack)
+        {
+            return true;
+        }
+        SetIsAttacking(false);
+        return false;
+    }
+
+    /// 공격 판정 콜라이더를 활성화합니다. 애니메이션 이벤트에서 호출됩니다.
+    public void EnableAttackCollider()
+    {
+        if (attackPoint != null)
+        {
+            attackPoint.enabled = true;
+        }
+    }
 
     /// <summary>
-    /// 게임 오브젝트가 활성화될 때 호출됩니다.
-    /// 필요한 컴포넌트들을 초기화하고 상태 머신을 생성합니다.
+    /// 공격 판정 콜라이더를 비활성화합니다. 애니메이션 이벤트에서 호출됩니다.
     /// </summary>
+    public void DisableAttackCollider()
+    {
+        if (attackPoint != null)
+        {
+            attackPoint.enabled = false;
+        }
+    }
+
+
     private void Awake()
     {
         // 필수 컴포넌트 초기화
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        attackPoint = GetComponent<BoxCollider2D>();
 
         // 상태 머신 초기화
         stateMachine = new StateMachine(this);
     }
 
-    /// <summary>
-    /// 첫 프레임 업데이트 전에 호출됩니다.
-    /// 상태 머신을 초기 상태로 설정합니다.
-    /// </summary>
+    
     private void Start()
     {
         stateMachine.StateInitialize();
+        PlayerControllerInit();
     }
 
-    /// <summary>
-    /// 매 프레임 호출됩니다.
-    /// 입력 감지 및 상태 머신 업데이트를 처리합니다.
-    /// </summary>
+    
     private void Update()
     {
         // 디버그용 상태 표시
-        state.text = stateMachine.StateReturnCurrentState();
-        
+
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        //state.text = stateInfo.fullPathHash.ToString();
+        //state.text = stateMachine.StateReturnCurrentState();
+        state.text = isAttacking.ToString();
+
+
         // 입력 감지
         OnMoveInput();
         
@@ -87,10 +140,7 @@ public class PlayerController : MonoBehaviour
         stateMachine.StateUpdate();
     }
 
-    /// <summary>
-    /// 물리 업데이트 주기마다 호출됩니다.
-    /// 지면 체크, 상태 머신 물리 업데이트, 이동 적용을 처리합니다.
-    /// </summary>
+    
     private void FixedUpdate()
     {
         // 지면 체크
@@ -104,7 +154,10 @@ public class PlayerController : MonoBehaviour
         ApplyMovement();
     }
 
-
+    private void PlayerControllerInit()
+    {
+        jumpCount = MaxJumpCount;
+    }
 
     /// <summary>
     /// 플레이어의 수평 입력을 감지하여 inputDirection을 업데이트합니다.
@@ -135,7 +188,7 @@ public class PlayerController : MonoBehaviour
 
         if (rayHit.collider != null)
         {
-            Debug.Log(rayHit.collider.name);
+            //Debug.Log(rayHit.collider.name);
             isGround = true;
             return true;
         }
@@ -158,22 +211,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 점프 입력을 감지합니다.
-    /// 사용처: 점프 상태로 전환할 때 호출
-    /// </summary>
-    /// <returns>스페이스바가 눌렸으면 true, 아니면 false</returns>
-    public bool TryJump()
+    // 점프 입력 확인
+    public bool HasJumpInput()
     {
         return Input.GetKeyDown(KeyCode.Space);
     }
 
-    /// <summary>
-    /// 공격 입력을 감지합니다.
-    /// 사용처: 공격 상태로 전환할 때 호출
-    /// </summary>
-    /// <returns>Z 키가 눌렸으면 true, 아니면 false</returns>
-    public bool TryAttack()
+    // 공격 입력 확인
+    public bool HasAttackInput()
     {
         return Input.GetKeyDown(KeyCode.Z);
     }
@@ -225,7 +270,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public bool ShouldIdle()
+    public bool ShouldIdleStateTransition()
     {
         if (isGround && inputDirection.x == 0)
         {
@@ -234,12 +279,12 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
-    public void StartIdle()
+    public void StartIdleStateTransition()
     {
         stateMachine.StateTransitionTo(stateMachine.idleState);
     }
     
-    public bool ShouldRun()
+    public bool ShouldRunStateTransition()
     {
         if (isGround && inputDirection.x != 0)
         {
@@ -248,11 +293,84 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
-    public void StartRun()
+    public void StartRunStateTransition()
     {
-        stateMachine.StateTransitionTo(stateMachine.runningState);
+        stateMachine.StateTransitionTo(stateMachine.runState);
+    }
+    
+    public bool ShouldAirborneStateTransition()
+    {
+        if (!isGround)
+        {
+            return true;
+        }
+        return false;
     }
 
+    public void StartAirborneStateTransition()
+    {
+        stateMachine.StateTransitionTo(stateMachine.airborneState);
+    }
+
+    public bool ShouldAttackStateTransition()
+    {
+        if (HasAttackInput())
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    public void StartAttackStateTransition()
+    {
+        stateMachine.StateTransitionTo(stateMachine.attackState);
+    }
+    
+    //점프 관련 함수
+
+    //점프 수행 및 점프 횟수 차감감
+    public void DoJump()
+    {
+        ConsumeJump();
+        GiveForceToVertical(jumpPower);
+    }
+
+    //점프 가능 확인
+    public bool CanJump()
+    {
+        if (JumpCount() > 0 && frameVelocity.y < jumpPower)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    //점프 횟수 확인
+    public int JumpCount()
+    {
+        return jumpCount;
+    }
+
+    //점프 횟수 차감
+    public void ConsumeJump()
+    {
+        jumpCount--;
+    }
+
+    //점프 횟수 초기화
+    public void ResetJumpCount()
+    {
+        jumpCount = MaxJumpCount;
+    }
+
+    //수직 방향 힘 적용
+    public void GiveForceToVertical(float jumpForce)
+    {
+        frameVelocity.y = jumpForce;
+    }
+    
+
+    //애니메이션 전환
     public void SetBoolAnimationTrue(string animationName)
     {
         animator.SetBool(animationName, true);
@@ -263,18 +381,23 @@ public class PlayerController : MonoBehaviour
         animator.SetBool(animationName, false);
     }
 
-    public void GiveForceToRun()
+    /// <summary>
+    /// Rigidbody의 수직 속도를 Animator의 "VerticalSpeed" 파라미터에 전달합니다.
+    /// 점프 애니메이션(상승, 정점, 하강)의 전환은 Animator Controller에서 처리합니다.
+    /// </summary>
+    public void UpdateJumpAnimation()
     {
-        // 입력 방향으로 힘을 가함
-        rigid.AddForce(inputDirection, ForceMode2D.Impulse);
+        animator.SetFloat("VerticalSpeed", rigid.velocity.y);
+    }
 
-        // 최대 속도 제한
-        if (Mathf.Abs(rigid.velocity.x) > maxSpeed)
-        {
-            rigid.velocity = new Vector2(
-                maxSpeed * Mathf.Sign(rigid.velocity.x), 
-                rigid.velocity.y);
-        }
+    
+    //중력 처리
+    public void HandleGravity()
+    {
+        frameVelocity.y = Mathf.MoveTowards(
+            frameVelocity.y, 
+            -maxFallSpeed, 
+            fallAcceleraction * Time.fixedDeltaTime);
     }
 
 

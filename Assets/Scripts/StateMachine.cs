@@ -18,8 +18,8 @@ public class StateMachine
 
     // 상태 인스턴스들
     public IdleState idleState;
-    public RunningState runningState;
-    public JumpState jumpState;
+    public RunState runState;
+    public AirborneState airborneState;
     public AttackState attackState;
 
     /// <summary>
@@ -29,10 +29,10 @@ public class StateMachine
     public StateMachine(PlayerController _playerController)
     {
         this.playerController = _playerController;
-        this.runningState = new RunningState(_playerController);
-        this.idleState = new IdleState(_playerController);
-        this.jumpState = new JumpState(_playerController);
-        this.attackState = new AttackState(_playerController);
+        this.runState = new RunState(_playerController, this);
+        this.idleState = new IdleState(_playerController, this);
+        this.airborneState = new AirborneState(_playerController, this);
+        this.attackState = new AttackState(_playerController, this);
     }
 
     /// <summary>
