@@ -38,7 +38,7 @@ public abstract class BaseState : IState
 
     private void CheckForIdleStateTransition()
     {
-        if (!playerController.IsAttacking() && playerController.ShouldIdleStateTransition() && !IsCurrentState(stateMachine.idleState))
+        if (playerController.ShouldIdleStateTransition() && !IsCurrentState(stateMachine.idleState))
         {
             playerController.StartIdleStateTransition();
         }
@@ -46,28 +46,28 @@ public abstract class BaseState : IState
     
     private void CheckForRunStateTransition()
     {
-        if (!playerController.IsAttacking() && playerController.ShouldRunStateTransition() && !IsCurrentState(stateMachine.runState))
+        if (playerController.ShouldRunStateTransition() && !IsCurrentState(stateMachine.runState))
         {
             playerController.StartRunStateTransition();
         }
     }
     private void CheckForJump() 
     {
-        if (!playerController.IsAttacking() && playerController.HasJumpInput()&& playerController.CanJump())
+        if (playerController.HasJumpInput()&& playerController.CanJump())
         {
             playerController.DoJump();
         }
     }
     private void CheckForAirbornStateTransition()
     {
-        if (!playerController.IsAttacking() && playerController.ShouldAirborneStateTransition() && !IsCurrentState(stateMachine.airborneState))
+        if (playerController.ShouldAirborneStateTransition() && !IsCurrentState(stateMachine.airborneState))
         {
             playerController.StartAirborneStateTransition();
         }
     }
     private void CheckForAttackStateTransition()
     {
-        if (!playerController.IsAttacking() && playerController.ShouldAttackStateTransition() && !IsCurrentState(stateMachine.attackState))
+        if (playerController.ShouldAttackStateTransition() && !IsCurrentState(stateMachine.attackState))
         {
             playerController.StartAttackStateTransition();
         }

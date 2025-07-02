@@ -64,23 +64,19 @@ public class PlayerController : MonoBehaviour
         isAttacking = value;
     }
 
-    public void ResetAttackCombo()
+    public void ResetAttackCount()
     {
         attackCount = 0;
     }
 
+    public bool IsAnimationFinished(string animationName)
+    {
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        return stateInfo.IsName(animationName) && stateInfo.normalizedTime >= 1.0f;
+    }
     
  
-    /// 특정 애니메이션 상태의 재생이 완료되었는지 확인합니다.
-    public bool ShouldContinueAttack(bool doNextAttack)
-    {
-        if (doNextAttack)
-        {
-            return true;
-        }
-        SetIsAttacking(false);
-        return false;
-    }
+
 
     /// 공격 판정 콜라이더를 활성화합니다. 애니메이션 이벤트에서 호출됩니다.
     public void EnableAttackCollider()
@@ -129,8 +125,8 @@ public class PlayerController : MonoBehaviour
 
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         //state.text = stateInfo.fullPathHash.ToString();
-        //state.text = stateMachine.StateReturnCurrentState();
-        state.text = isAttacking.ToString();
+        state.text = stateMachine.StateReturnCurrentState();
+        //state.text = isAttacking.ToString();
 
 
         // 입력 감지
@@ -325,6 +321,11 @@ public class PlayerController : MonoBehaviour
     {
         stateMachine.StateTransitionTo(stateMachine.attackState);
     }
+    //공격 실행 시, 멈추기위한 용도
+    public void ResetVelocity(){
+        frameVelocity = Vector2.zero;
+    }
+    
     
     //점프 관련 함수
 
